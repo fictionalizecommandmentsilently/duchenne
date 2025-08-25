@@ -26,18 +26,18 @@ import pandas as pd
 import pydeck as pdk
 import streamlit as st
 
-from duchenne_toolkit.src.data.loaders import load_coverage
-from duchenne_toolkit.src.utils.validate import (
+from duchenne_toolkit.utils.github import (
+    create_branch,
+    commit_file,
+    open_pr,
+)
+from duchenne_toolkit.utils.validate import (
     validate_fips,
     coerce_distance_band,
     numeric_or_nan,
     show_validation_report,
 )
-from duchenne_toolkit.src.utils.github import (
-    create_branch,
-    commit_file,
-    open_pr,
-)
+
 
 # Configure the page
 st.set_page_config(page_title="DMD Access Coverage", layout="wide")
