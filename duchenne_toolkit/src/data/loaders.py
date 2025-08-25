@@ -1,79 +1,104 @@
-"""
-# Standardise any existing coordinate columns and drop rows lacking both lat and lon.
-df, rep0 = ensure_lat_lon(df)
-debug.update(rep0)
-# Determine which rows still need coordinates. If either coordinate
-# column is absent we consider all rows missing.
-if {"lat", "lon"}.issubset(df.columns):
-missing_mask = df["lat"].isna() | df["lon"].isna()
-else:
-missing_mask = pd.Series(True, index=df.index)
-# Only attempt a centroid merge if there are rows without coords
-if missing_mask.any():
-lookup_file = LOOKUP_DIR / "county_centroids.csv"
-if lookup_file.exists():
-lookup = pd.read_csv(lookup_file, dtype={"GEOID": str})
-lookup = lookup.rename(
-columns={"GEOID": "geoid", "INTPTLAT": "centroid_lat", "INTPTLONG": "centroid_lon"}
-)
-# Coerce centroid columns to numeric
-lookup["centroid_lat"] = pd.to_numeric(lookup["centroid_lat"], errors="coerce")
-lookup["centroid_lon"] = pd.to_numeric(lookup["centroid_lon"], errors="coerce")
-# Merge centroid coordinates onto the coverage DataFrame
-df = df.merge(lookup[["geoid", "centroid_lat", "centroid_lon"]], on="geoid", how="left")
-# Create lat/lon columns if they do not yet exist, then fill missing values
-if "lat" not in df.columns:
-df["lat"] = df["centroid_lat"]
-else:
-df["lat"] = df["lat"].fillna(df["centroid_lat"])
-if "lon" not in df.columns:
-df["lon"] = df["centroid_lon"]
-else:
-df["lon"] = df["lon"].fillna(df["centroid_lon"])
-# Drop temporary centroid columns
-df = df.drop(columns=[c for c in ["centroid_lat", "centroid_lon"] if c in df.columns])
-else:
-# Fallback: fetch county centroid lookup from the public URL
-try:
-lookup = pd.read_csv(COUNTY_CENTERS_URL, dtype=str)
-# Try to normalise columns to geoid + centroid_lat/lon
-cols = {c.lower(): c for c in lookup.columns}
-if "geoid" in cols:
-lookup = lookup.rename(columns={cols["geoid"]: "geoid"})
-elif "fips" in cols:
-lookup = lookup.rename(columns={cols["fips"]: "geoid"})
-# Identify latitude/longitude columns
-lat_col = cols.get("lat") or cols.get("latitude") or cols.get("intptlat") or cols.get("lat_dd")
-lon_col = cols.get("lon") or cols.get("longitude") or cols.get("intptlong") or cols.get("lng") or cols.get("lon_dd")
-if not lat_col or not lon_col:
-raise ValueError("Could not infer centroid latitude/longitude columns from lookup dataset")
-lookup = lookup.rename(columns={lat_col: "centroid_lat", lon_col: "centroid_lon"})
-# Coerce numeric
-lookup["centroid_lat"] = pd.to_numeric(lookup["centroid_lat"], errors="coerce")
-lookup["centroid_lon"] = pd.to_numeric(lookup["centroid_lon"], errors="coerce")
-# Ensure geoid is zero-padded to 5 digits (some sources use 5-digit county FIPS)
-lookup["geoid"] = lookup["geoid"].astype(str).str.zfill(5)
-df = df.merge(lookup[["geoid", "centroid_lat", "centroid_lon"]], on="geoid", how="left")
-if "lat" not in df.columns:
-df["lat"] = df["centroid_lat"]
-else:
-df["lat"] = df["lat"].fillna(df["centroid_lat"])
-if "lon" not in df.columns:
-df["lon"] = df["centroid_lon"]
-else:
-df["lon"] = df["lon"].fillna(df["centroid_lon"])
-df = df.drop(columns=[c for c in ["centroid_lat", "centroid_lon"] if c in df.columns])
-except Exception as e:
-# Leave coordinates missing; the app will surface a validation message
-pass
-# Recompute missing coordinate count after merge
-if {"lat", "lon"}.issubset(df.columns):
-debug["missing_after_merge"] = int((df["lat"].isna() | df["lon"].isna()).sum())
-else:
-debug["missing_after_merge"] = None
-# Persist the enriched dataset to the derived directory for reuse
-DERIVED_DIR.mkdir(parents=True, exist_ok=True)
-derived_path = DERIVED_DIR / "coverage_with_coords.csv"
-df.to_csv(derived_path, index=False)
-debug["derived_path"] = str(derived_path)
-return df, debug
+from __future__ import annotations
+
+from pathlib import Path
+from typing import Dict, Tuple
+
+import pandas as pd
+
+# Paths relative to the package root: duchenne_toolkit/
+BASE_DIR: Path = Path(__file__).resolve().parents[2]
+DATA_FINAL_DIR: Path = BASE_DIR / "data_final"
+LOOKUP_DIR: Path = BASE_DIR / "data" / "lookups"
+DERIVED_DIR: Path = BASE_DIR / "data" / "derived"
+
+
+def _ensure_lat_lon(df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict[str, int | None]]:
+    report: Dict[str, int | None] = {}
+    df = df.copy()
+
+    rmap = {}
+    for cand in ["latitude", "lat_dd", "INTPTLAT", "y", "Lat", "LAT"]:
+        if cand in df.columns:
+            rmap[cand] = "lat"
+            break
+    for cand in ["longitude", "lon_dd", "lng", "INTPTLONG", "x", "Lon", "LON"]:
+        if cand in df.columns:
+            rmap[cand] = "lon"
+            break
+    if rmap:
+        df = df.rename(columns=rmap)
+
+    for c in ["lat", "lon"]:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
+
+    if {"lat", "lon"}.issubset(df.columns):
+        before = len(df)
+        df = df.dropna(subset=["lat", "lon"])
+        report["dropped_missing_coords"] = before - len(df)
+    else:
+        report["dropped_missing_coords"] = None
+
+    return df, report
+
+
+def load_coverage() -> Tuple[pd.DataFrame, Dict[str, int | str | None]]:
+    """
+    Load duchenne_toolkit/data_final/county_coverage.csv and enrich with county centroids.
+    Persists a derived CSV with coords to duchenne_toolkit/data/derived/coverage_with_coords.csv
+    and returns (df, debug_report).
+    """
+    debug: Dict[str, int | str | None] = {}
+    path = DATA_FINAL_DIR / "county_coverage.csv"
+    df = pd.read_csv(path, dtype=str)
+
+    if "state_fips" in df.columns:
+        df["state_fips"] = df["state_fips"].astype(str).str.zfill(2)
+    if "county_fips" in df.columns:
+        df["county_fips"] = df["county_fips"].astype(str).str.zfill(3)
+    if {"state_fips", "county_fips"}.issubset(df.columns):
+        df["geoid"] = df["state_fips"] + df["county_fips"]
+    else:
+        df["geoid"] = pd.NA
+
+    df, rep0 = _ensure_lat_lon(df)
+    debug.update(rep0)
+
+    need_coords = (
+        ({"lat", "lon"}.issubset(df.columns) and (df["lat"].isna() | df["lon"].isna()).any())
+        or not {"lat", "lon"}.issubset(df.columns)
+    )
+
+    if need_coords:
+        lookup_file = LOOKUP_DIR / "county_centroids.csv"
+        if lookup_file.exists():
+            lookup = pd.read_csv(lookup_file, dtype={"GEOID": str})
+            lookup = lookup.rename(
+                columns={"GEOID": "geoid", "INTPTLAT": "centroid_lat", "INTPTLONG": "centroid_lon"}
+            )
+            lookup["centroid_lat"] = pd.to_numeric(lookup["centroid_lat"], errors="coerce")
+            lookup["centroid_lon"] = pd.to_numeric(lookup["centroid_lon"], errors="coerce")
+
+            df = df.merge(lookup[["geoid", "centroid_lat", "centroid_lon"]], on="geoid", how="left")
+            if "lat" not in df.columns:
+                df["lat"] = df["centroid_lat"]
+            else:
+                df["lat"] = df["lat"].fillna(df["centroid_lat"])
+            if "lon" not in df.columns:
+                df["lon"] = df["centroid_lon"]
+            else:
+                df["lon"] = df["lon"].fillna(df["centroid_lon"])
+            df = df.drop(columns=[c for c in ["centroid_lat", "centroid_lon"] if c in df.columns])
+        # else: leave missing; app will warn
+
+    if {"lat", "lon"}.issubset(df.columns):
+        debug["missing_after_merge"] = int((df["lat"].isna() | df["lon"].isna()).sum())
+    else:
+        debug["missing_after_merge"] = None
+
+    DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+    derived_path = DERIVED_DIR / "coverage_with_coords.csv"
+    df.to_csv(derived_path, index=False)
+    debug["derived_path"] = str(derived_path)
+
+    return df, debug
