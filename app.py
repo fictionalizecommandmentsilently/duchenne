@@ -11,15 +11,28 @@ def load_data():
     centers = pd.read_csv(DATA_DIR / "centers_cdcc_us.csv", dtype={"state": str})
     cov     = pd.read_csv(DATA_DIR / "county_coverage.csv",
                           dtype={"state_fips": str, "county_fips": str})
-    model   = pd.read_csv(DATA_DIR / "county_dmd_model.csv",
-                          dtype={"state_fips": str, "county_fips": str})
-    cov = cov.merge(
-        model[["state_fips","county_fips","modeled_dmd_5_24_mid"]],
-        on=["state_fips","county_fips"], how="left"
-    )
+    # Try to use modeled value already in coverage
+    if "modeled_dmd_5_24_mid" not in cov.columns:
+        # If not there, merge it in from the model file
+        model = pd.read_csv(DATA_DIR / "county_dmd_model.csv",
+                            dtype={"state_fips": str, "county_fips": str})
+        cov = cov.merge(
+            model[["state_fips","county_fips","modeled_dmd_5_24_mid"]],
+            on=["state_fips","county_fips"],
+            how="left"
+        )
+    # Handle accidental duplicate names from prior merges
+    if "modeled_dmd_5_24_mid" not in cov.columns:
+        alt_cols = [c for c in cov.columns if c.startswith("modeled_dmd_5_24_mid")]
+        if alt_cols:
+            cov["modeled_dmd_5_24_mid"] = cov[alt_cols[0]]
+    # Last resort to avoid crashes
+    if "modeled_dmd_5_24_mid" not in cov.columns:
+        cov["modeled_dmd_5_24_mid"] = 0.0
     return centers, cov
 
 centers, cov = load_data()
+
 st.title("Duchenne Access Coverage")
 
 states = sorted(cov["state_fips"].dropna().unique())
