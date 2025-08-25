@@ -1,0 +1,204 @@
+{
+  "centers": [
+    {
+      "center_name": "Akron Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "American Family Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Ann and Robert H. Lurie Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Arkansas Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Billings Clinic",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Hospital Colorado",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Hospital of the King's Daughters",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Hospital Los Angeles",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Hospital of Richmond at VCU",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Wisconsin",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Medical Center Dallas",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Mercy Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's National Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Cincinnati Children's Hospital Medical Center",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Duke Children's Neuromuscular Program",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Helen DeVos Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Kennedy Krieger Institute",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Lucile Packard Children's Hospital Stanford",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Monroe Carrell Jr. Children's Hospital at Vanderbilt",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Nationwide Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Nemours Children's Health",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Phoenix Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "UPMC Children's Hospital of Pittsburgh",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Riley Hospital for Children at IU Health",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Seattle Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "St. Louis Children's Hospital at Washington University",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Stony Brook Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "UC Davis Health",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "UCLA Health",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "UCSF Benioff Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "University of Iowa Stead Family Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "University of Missouri Health Care",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "University of Rochester Medical Center",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "University of Utah / Primary Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "University of Virginia Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Yale New Haven Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Boston Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Norton Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Penn State Health Children's Hospital",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    },
+    {
+      "center_name": "Children's Hospital of Philadelphia",
+      "data_source": "PPMD publications",
+      "retrieved_date": "2025-08-24"
+    }
+  ]
+}
